@@ -2,7 +2,7 @@ import telebot
 from brainly_api import brainly
 import random
 import re
-from telebot import types
+from telebot import types, time
 import html
 from urllib.parse import quote
 import os, sys
