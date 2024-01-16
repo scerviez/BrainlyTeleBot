@@ -167,25 +167,28 @@ async def handle_message(update: Update) -> None:
         print(f"An error occurred: {e}")
         print(f"Answer Text: {answer_text}")
         print(f"Text: {text}")
-
+        
 def main() -> None:
     # Set up the Updater and pass it the bot's token
-    application = ApplicationBuilder().token('6453852810:AAGtLiSgkOa7nCBD7J0auGarPv1XEERQE8Q').read_timeout(30).write_timeout(30).build()
+    updater = Updater(token='6453852810:AAGtLiSgkOa7nCBD7J0auGarPv1XEERQE8Q', use_context=True, request_kwargs={'read_timeout': 30, 'write_timeout': 30})
+
     # Get the dispatcher to register handlers
+    dp = updater.dispatcher
 
     # Register command handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(MessageHandler(filters.ChatType.PRIVATE, jawab))
-    application.add_handler(CommandHandler("cari", cari))
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(MessageHandler(filters.ChatType.PRIVATE, jawab))
+    dp.add_handler(CommandHandler("cari", cari))
 
     # Register inline query handler
-    application.add_handler(InlineQueryHandler(handle_inline))
+    dp.add_handler(InlineQueryHandler(handle_inline))
 
     # Start the Bot
+    updater.start_polling()
 
     # Run the bot until you send a signal to stop it
-    # Run the bot until the user presses Ctrl-C
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    updater.idle()
+
     logger.info('Bot started. Press Ctrl+C to exit.')
 
 if __name__ == '__main__':
