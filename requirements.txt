@@ -1,0 +1,4 @@
+python-telegram-bot
+requests
+html_text
+typing
