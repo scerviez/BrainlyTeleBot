@@ -146,10 +146,10 @@ def handle_message(message):
         print(f"Answer Text: {answer_text}")
         print(f"Text: {text}")
 
-try:
-    bot.infinity_polling(timeout=10, long_polling_timeout=5)
-except (ConnectionError, ReadTimeout) as e:
-    sys.stdout.flush()
-    os.execv(sys.argv[0], sys.argv)
-else:
-    bot.infinity_polling(timeout=10, long_polling_timeout=5)
+while True:
+    try:
+        bot.polling(none_stop=True, timeout=90)
+    except Exception as e:
+        print(datetime.datetime.now(), e)
+        time.sleep(5)
+        continue
