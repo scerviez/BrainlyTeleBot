@@ -5,6 +5,8 @@ import re
 from telebot import types
 import html
 from urllib.parse import quote
+import os, sys
+from requests.exceptions import ConnectionError, ReadTimeout
 
 # Inisialisasi bot Telegram
 bot_token = '6453852810:AAHGaMXRxsZmoBRU9VMMr8nXVlV_cuW3Oj0'
