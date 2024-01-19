@@ -10,7 +10,7 @@ import datetime
 from requests.exceptions import ConnectionError, ReadTimeout
 
 # Inisialisasi bot Telegram
-bot_token = '6453852810:AAGyN86AZW7VCgi7KtYiDzwO-RuyG9qyURE'
+bot_token = '6675489201:AAHZMqHMhPuhspPLkg4tQARAcPUqOuQkKZU'
 bot = telebot.TeleBot(bot_token)
 
 @bot.message_handler(commands=['start'])
@@ -26,8 +26,8 @@ def start(message):
 
     # Create an array of inline buttons
     inline_buttons = [
-        types.InlineKeyboardButton("Channel 📢", url="https://t.me/nekozu2"),
-        types.InlineKeyboardButton("Donate ☕", url="https://ko-fi.com/nekozu"),
+        types.InlineKeyboardButton("Channel 📢", url="https://t.me/aysbiz"),
+        types.InlineKeyboardButton("Donate ☕", url="https://teer.id/farih_dzaky"),
         types.InlineKeyboardButton("Gunakan Inline 🚀", switch_inline_query="")
     ]
 
@@ -48,7 +48,7 @@ def handle_inline(query):
         return
     inline_buttons = [
         types.InlineKeyboardButton("Channel 📢", url="https://t.me/nekozu2"),
-        types.InlineKeyboardButton("Donate ☕", url="https://ko-fi.com/nekozu"),
+        types.InlineKeyboardButton("Donate ☕", url="https://teer.id/farih_dzaky"),
     ]
 
     # Add inline keyboard to the last result
@@ -104,7 +104,7 @@ def handle_message(message):
     text = ''
     inline_buttons = [
                 types.InlineKeyboardButton("Channel 📢", url="https://t.me/nekozu2"),
-                types.InlineKeyboardButton("Donate ☕", url="https://ko-fi.com/nekozu"),
+                types.InlineKeyboardButton("Donate ☕", url="https://teer.id/farih_dzaky"),
                 types.InlineKeyboardButton("Gunakan Inline 🚀", switch_inline_query="")
             ]
     keyboard = types.InlineKeyboardMarkup(row_width=3)
