@@ -10,7 +10,7 @@ import datetime
 from requests.exceptions import ConnectionError, ReadTimeout
 
 # Inisialisasi bot Telegram
-bot_token = '6453852810:AAHrni3aOZaD27DI4Mwmxo7T2F5W06IWaRU'
+bot_token = '6453852810:AAGyN86AZW7VCgi7KtYiDzwO-RuyG9qyURE'
 bot = telebot.TeleBot(bot_token)
 
 @bot.message_handler(commands=['start'])
