@@ -1,4 +1,4 @@
-pytelegrambotapi
+pyrogram
 requests
 html_text
 typing
