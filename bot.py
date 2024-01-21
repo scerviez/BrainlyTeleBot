@@ -1,156 +1,120 @@
-import telebot
 from brainly_api import brainly
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputTextMessageContent, InlineQueryResultArticle, InlineQueryResultPhoto
 import random
 import re
-from telebot import types, time
 import html
-from urllib.parse import quote
-import os, sys
-import datetime
-from requests.exceptions import ConnectionError, ReadTimeout
+from pyrogram import enums
 
 # Inisialisasi bot Telegram
-bot_token = '6675489201:AAHZMqHMhPuhspPLkg4tQARAcPUqOuQkKZU'
-bot = telebot.TeleBot(bot_token)
+api_id = '4728859'
+api_hash = 'a7391b53a4bb7838dc950f0b865ad43f'
+bot_token = '6453852810:AAF1iJL4IcZDiMd7CyH8uWMHlcW-pF4PSPI'
+app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    user_id = message.from_user.id
+@app.on_message(filters.command("start"))
+def start(client, message):
     chat_id = message.chat.id
-
-    # Send the welcome message with inline keyboard
     welcome_text = (
         "Halo! Aku bisa membantu kamu mencari jawaban di Brainly. "
         "Cukup ketikkan pertanyaanmu disini atau gunakan tombol inline dibawah! 😊"
     )
-
-    # Create an array of inline buttons
-    inline_buttons = [
-        types.InlineKeyboardButton("Channel 📢", url="https://t.me/aysbiz"),
-        types.InlineKeyboardButton("Donate ☕", url="https://teer.id/farih_dzaky"),
-        types.InlineKeyboardButton("Gunakan Inline 🚀", switch_inline_query="")
+    inline_keyboard = [
+        [InlineKeyboardButton("Channel 📢", url="https://t.me/nekozu2")],
+        [InlineKeyboardButton("Donate ☕", url="https://teer.id/farih_dzaky")],
+        [InlineKeyboardButton("Gunakan Inline 🚀", switch_inline_query_current_chat="")],
     ]
+    reply_markup = InlineKeyboardMarkup(inline_keyboard)
+    client.send_message(chat_id, welcome_text, reply_markup=reply_markup)
 
-    # Create inline keyboard with adjusted size
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(*inline_buttons)
+@app.on_message(filters.private)
+def answer_query(client, message):
+    handle_message(client, message)
 
-    # Send the message with inline keyboard to the group chat
-    bot.send_message(chat_id, welcome_text, reply_markup=keyboard)
-
-@bot.message_handler(func=lambda message: message.chat.type == 'private')
-def jawab(message):
-    handle_message(message)
-
-@bot.inline_handler(lambda query: True)
-def handle_inline(query):
-    if len(query.query) == 0:
+@app.on_inline_query()
+def inline_query_handler(client, inline_query):
+    query = inline_query.query
+    user_id = inline_query.from_user.id
+    if query == "":
         return
-    inline_buttons = [
-        types.InlineKeyboardButton("Channel 📢", url="https://t.me/nekozu2"),
-        types.InlineKeyboardButton("Donate ☕", url="https://teer.id/farih_dzaky"),
-    ]
+    
+    results = brainly(query, 20)  # Adjust the number of results if needed
+    answers = []
+    inline_keyboard = [
+            [InlineKeyboardButton("Channel 📢", url="https://t.me/nekozu2")],
+            [InlineKeyboardButton("Donate ☕", url="https://teer.id/farih_dzaky")],
+        ]
+        
+    reply_markup = InlineKeyboardMarkup(inline_keyboard)
 
-    # Add inline keyboard to the last result
-    keyboard = types.InlineKeyboardMarkup(row_width=1).add(*inline_buttons)
-    # Check if the user has started the bot
-    user_id = query.from_user.id
-    scrap = brainly(query.query, 20)  # Fetch 20 questions
-    results = []
-
-    for i, selected in enumerate(scrap):
+    for i, selected in enumerate(results):
         question_text = f"<b>Pertanyaan:</b> {html.escape(selected.question.content)}\n"
         answer_text = f"{question_text}<b>Jawaban:</b> {html.escape(selected.answers[0].content)}\n"
         answer_text = re.sub(r'\n\s*\n', '\n', answer_text)
         combined_text = answer_text + question_text
-
-        # Skip if the combined text exceeds 1024 characters
+        
         if len(combined_text) > 1024:
             continue
-
-        thumburl = selected.question.attachments[0].url if selected.question.attachments else None
-
-        # Escape HTML special characters in the title
-        escaped_title = f"Jawaban {i + 1} untuk: {html.escape(query.query)}"
-
-        # Define keyboard with url for longer answers
-        if thumburl:
-            result = types.InlineQueryResultPhoto(
-                id=str(i + 1),
-                photo_url=thumburl,
-                thumbnail_url=thumburl,
+        
+        thumb_url = selected.question.attachments[0].url if selected.question.attachments else None
+        escaped_title = f"Jawaban {i + 1} untuk: {html.escape(query)}"
+        
+        if thumb_url:
+            single_result = InlineQueryResultPhoto(
+                id=str(i),
+                photo_url=thumb_url,
+                thumb_url=thumb_url,
                 caption=combined_text,
-                parse_mode='HTML',
-                description=combined_text,
-                reply_markup=keyboard
+                title=escaped_title,
+                reply_markup=reply_markup,
+                parse_mode=enums.ParseMode.HTML
             )
         else:
-            result = types.InlineQueryResultArticle(
-                id=str(i + 1),
+            single_result = InlineQueryResultArticle(
+                id=str(i),
                 title=escaped_title,
-                input_message_content=types.InputTextMessageContent(combined_text, parse_mode='HTML'),
+                input_message_content=InputTextMessageContent(combined_text, parse_mode=enums.ParseMode.HTML),
                 description=combined_text,
-                reply_markup=keyboard
+                reply_markup=reply_markup
             )
+        answers.append(single_result)
 
-        results.append(result)
+    client.answer_inline_query(inline_query.id, results=answers)
 
-    # Add a button for the channel link in the results
-
-    bot.answer_inline_query(query.id, results)
-
-def handle_message(message):
-    answer_text = ''
-    text = ''
-    inline_buttons = [
-                types.InlineKeyboardButton("Channel 📢", url="https://t.me/nekozu2"),
-                types.InlineKeyboardButton("Donate ☕", url="https://teer.id/farih_dzaky"),
-                types.InlineKeyboardButton("Gunakan Inline 🚀", switch_inline_query="")
-            ]
-    keyboard = types.InlineKeyboardMarkup(row_width=3)
-    keyboard.add(*inline_buttons)
+def handle_message(client, message):
     try:
-        scrap = brainly(message.text, 50)
+        scrap = brainly(message.text, 50)  # You may want to adjust the number here too
         selected = random.choice(scrap)
 
-        text = f"*Pertanyaan:* {selected.question.content} \n"
+        text = f"*Pertanyaan:* {selected.question.content} \n\n"
         for i, answer in enumerate(selected.answers):
-            text += f"\n*Jawaban {i + 1}:*\n{answer.content} \n"
+            text += f"*Jawaban {i + 1}:*\n{answer.content}\n\n"
 
         text = re.sub(r'\n\s*\n', '\n', text)
-        text = text[:1024]
+        text = text[:4096]  # Truncate to max message length if necessary
         text = re.sub(r'\\([^\\]+)\\', r'\1', text)
         text = text.replace('\\\\', '\\')
         text = re.sub(r'\\frac\{(.*?)\}\{(.*?)\}', r'(\1)/(\2)', text)
         text = text.replace('*', '')
         text = text.replace('_', '')
 
-        message_sent = bot.send_message(message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
-
-        for attachment in selected.question.attachments:
-            bot.send_photo(message.chat.id, attachment.url, caption=text, parse_mode='Markdown', reply_markup=keyboard)
-
-        for answer in selected.answers:
-            for attachment in answer.attachments:
-                answer_text = f"*Jawaban:* {answer.content} \n"
-                answer_text = re.sub(r'\n\s*\n', '\n', answer_text)
-                answer_text = answer_text[:1024]
-                answer_text = re.sub(r'\\([^\\]+)\\', r'\1', answer_text)
-                answer_text = answer_text.replace('\\\\', '\\')
-                answer_text = re.sub(r'\\frac\{(.*?)\}\{(.*?)\}', r'(\1)/(\2)', answer_text)
-                answer_text = text.replace('*', '')
-                answer_text = text.replace('_', '')
-                bot.send_photo(message.chat.id, attachment.url, caption=answer_text, parse_mode='Markdown', reply_markup=keyboard)
+        inline_keyboard = [
+            [InlineKeyboardButton("Channel 📢", url="https://t.me/nekozu2")],
+            [InlineKeyboardButton("Donate ☕", url="https://teer.id/farih_dzaky")],
+            [InlineKeyboardButton("Gunakan Inline 🚀", switch_inline_query_current_chat="")],
+        ]
+        
+        reply_markup = InlineKeyboardMarkup(inline_keyboard)
+        thumb_url = selected.question.attachments[0].url if selected.question.attachments else None
+        if thumb_url:
+            client.send_photo(message.chat.id, photo=thumb_url, caption=text, parse_mode=enums.ParseMode.MARKDOWN, reply_markup=reply_markup)
+        else:
+            client.send_message(message.chat.id, text, parse_mode=enums.ParseMode.MARKDOWN, reply_markup=reply_markup)
 
     except Exception as e:
         print(f"An error occurred: {e}")
-        print(f"Answer Text: {answer_text}")
+        print(f"Answer Text: {text}")
         print(f"Text: {text}")
 
-while True:
-    try:
-        bot.polling(none_stop=True, timeout=90)
-    except Exception as e:
-        print(datetime.datetime.now(), e)
-        time.sleep(5)
-        continue
+# Add the following line if you want the bot to continuously run
+app.run()
