@@ -21,7 +21,7 @@ def start(client, message):
     )
     inline_keyboard = [
         [InlineKeyboardButton("Channel 📢", url="https://t.me/nekozu2")],
-        [InlineKeyboardButton("Donate ☕", url="https://teer.id/farih_dzaky")],
+        [InlineKeyboardButton("Donate ☕", url="https://ko-fi.com/nekozu/goal?g=0")],
         [InlineKeyboardButton("Gunakan Inline 🚀", switch_inline_query_current_chat="")],
     ]
     reply_markup = InlineKeyboardMarkup(inline_keyboard)
@@ -42,7 +42,7 @@ def inline_query_handler(client, inline_query):
     answers = []
     inline_keyboard = [
             [InlineKeyboardButton("Channel 📢", url="https://t.me/nekozu2")],
-            [InlineKeyboardButton("Donate ☕", url="https://teer.id/farih_dzaky")],
+            [InlineKeyboardButton("Donate ☕", url="https://ko-fi.com/nekozu/goal?g=0")],
         ]
         
     reply_markup = InlineKeyboardMarkup(inline_keyboard)
@@ -100,7 +100,7 @@ def handle_message(client, message):
 
         inline_keyboard = [
             [InlineKeyboardButton("Channel 📢", url="https://t.me/nekozu2")],
-            [InlineKeyboardButton("Donate ☕", url="https://teer.id/farih_dzaky")],
+            [InlineKeyboardButton("Donate ☕", url="https://ko-fi.com/nekozu/goal?g=0")],
             [InlineKeyboardButton("Gunakan Inline 🚀", switch_inline_query_current_chat="")],
         ]
         
