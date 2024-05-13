@@ -7,9 +7,9 @@ import html
 from pyrogram import enums
 
 # Inisialisasi bot Telegram
-api_id = '4728859'
-api_hash = 'a7391b53a4bb7838dc950f0b865ad43f'
-bot_token = '6453852810:AAF1iJL4IcZDiMd7CyH8uWMHlcW-pF4PSPI'
+api_id = 'api id kamu'
+api_hash = 'api hash kamu'
+bot_token = 'bot token kamu'
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 @app.on_message(filters.command("start"))
